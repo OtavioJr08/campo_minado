@@ -1,0 +1,2 @@
+window.game = new GameController()
+

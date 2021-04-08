@@ -1,0 +1,37 @@
+body {
+    background-color: #ffdf3e;
+}
+
+#menu{
+    background-color: #ffdf3e;
+}
+
+.rowBoard {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    justify-content: center;
+}
+
+.boardSquare{
+    background-color: #0dcaf0;
+    color: black;
+    width: 33px;
+    height: 33px;
+    border: 1px solid black;
+    text-align: center;
+}
+.boardSquare:hover{
+    background-color: #ffdf3e;
+}
+
+.boardSquareOpen{
+    background-color: #ffdf3e;
+    color: black;
+    width: 33px;
+    height: 33px;
+    border: 1px solid black;
+    text-align: center;
+    font-weight: bold;
+    font-size: 15pt;
+}
