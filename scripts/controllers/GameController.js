@@ -11,15 +11,37 @@ class GameController{
     }
     
     initialize(){
-        this.setEventMenu()
+        this.setEventsMenu()
         this.createMatrix()
     }
 
-    setEventMenu(){
+    setEventsMenu(){
+        // Fixed board size
         this.levels.forEach(lv=>{
             lv.addEventListener('click', ()=>{
                 this.getLevel(lv.dataset.level);
             })
+        });
+
+        // Custom board size
+        let customForm = document.querySelector('#customForm')
+   
+        customForm.addEventListener('submit', event=>{
+            event.preventDefault()
+            
+            this.lines = [...customForm.elements][0].value
+            this.columns = [...customForm.elements][1].value
+            this.bombs = [...customForm.elements][2].value
+            
+            if(this.lines != '' && this.columns != '' && this.bombs != ''){
+                let dimensions = this.lines * this.columns
+    
+                if(this.bombs <= dimensions)
+                    this.createBoard()
+                else
+                    alert('O número de bombas deve ser menor ou igual a ' + dimensions)
+            }else
+                alert('Há campos não preenchidos!')
         })
     }
 
