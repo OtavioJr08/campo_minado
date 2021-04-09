@@ -19,9 +19,9 @@ class GameController{
         // Fixed board size
         this.levels.forEach(lv=>{
             lv.addEventListener('click', ()=>{
-                this.getLevel(lv.dataset.level);
+                this.getLevel(lv.dataset.level)
             })
-        });
+        })
 
         // Custom board size
         let customForm = document.querySelector('#customForm')
@@ -37,7 +37,7 @@ class GameController{
                 let dimensions = this.lines * this.columns
     
                 if(this.bombs <= dimensions)
-                    this.createBoard()
+                    this.createMatrix()
                 else
                     alert('O número de bombas deve ser menor ou igual a ' + dimensions)
             }else
@@ -63,7 +63,7 @@ class GameController{
                 this.columns = 20
                 this.bombs = 40
         }
-        this.createBoard()
+        this.createMatrix()
     }
 
     createBoard(){
@@ -77,11 +77,31 @@ class GameController{
                 // Create columns
                 let square = document.createElement('div')
                 square.classList.add('boardSquare')
+                square.dataset.valueSquare = 0
                 row.insertAdjacentElement('beforeend', square)
+                this.matrix[i][j] = square
             }
             
             this.boardEl.insertAdjacentElement('beforeend', row)
         }
+    }
+
+    generateBombs(){
+        for(let i=0; i<this.bombs; i++){
+            let l, c
+            do{
+                l = this.getRandomInt(0 , this.lines-1)
+                c = this.getRandomInt(0, this.columns-1)   
+            }while(this.matrix[l][c].dataset.valueSquare != '0')
+            this.matrix[l][c].dataset.valueSquare = -1
+            this.matrix[l][c].style.backgroundColor  = 'red' //Temporário (Coloca posição com bomba em vermelho)
+        }
+    }
+
+    getRandomInt(min, max){
+        min = Math.ceil(min)
+        max = Math.floor(max)
+        return Math.floor(Math.random() * (max - min)) + min
     }
 
     createMatrix(){
@@ -91,6 +111,7 @@ class GameController{
             this.matrix[i] = new Array(this.columns)
         
         this.createBoard()
+        this.generateBombs()
     }
 
 }
