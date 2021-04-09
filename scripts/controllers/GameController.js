@@ -35,7 +35,6 @@ class GameController{
             
             if(this.lines != '' && this.columns != '' && this.bombs != ''){
                 let dimensions = this.lines * this.columns
-    
                 if(this.bombs <= dimensions)
                     this.createMatrix()
                 else
@@ -90,10 +89,10 @@ class GameController{
         for(let i=0; i<this.bombs; i++){
             let l, c
             do{
-                l = this.getRandomInt(0 , this.lines-1)
-                c = this.getRandomInt(0, this.columns-1)   
+                l = this.getRandomInt(0, this.lines)
+                c = this.getRandomInt(0, this.columns)   
             }while(this.matrix[l][c].dataset.valueSquare != '0')
-            this.matrix[l][c].dataset.valueSquare = -1
+            this.matrix[l][c].dataset.valueSquare = '-1'
             this.matrix[l][c].style.backgroundColor  = 'red' //Temporário (Coloca posição com bomba em vermelho)
         }
     }
@@ -104,6 +103,29 @@ class GameController{
         return Math.floor(Math.random() * (max - min)) + min
     }
 
+    countBombs(){
+        let bombCounter = 0
+        for(let i=0; i<this.lines; i++){
+            for(let j=0; j<this.columns; j++){
+
+                if(this.matrix[i][j].dataset.valueSquare == '0'){
+                    if(j>0 && this.matrix[i][j-1].dataset.valueSquare == '-1') bombCounter++;
+                    if(j<this.columns-1 && this.matrix[i][j+1].dataset.valueSquare == '-1') bombCounter++;
+                    if(i<this.lines-1 && this.matrix[i+1][j].dataset.valueSquare == '-1') bombCounter++;
+                    if(i>0 && this.matrix[i-1][j].dataset.valueSquare == '-1') bombCounter++;
+                    if(i<this.lines-1 && j>0 && this.matrix[i+1][j-1].dataset.valueSquare == '-1') bombCounter++;
+                    if(i<this.lines-1 && j<this.columns-1 && this.matrix[i+1][j+1].dataset.valueSquare == '-1') bombCounter++;
+                    if(i>0 && j>0 && this.matrix[i-1][j-1].dataset.valueSquare == '-1') bombCounter++;
+                    if(i>0 && j<this.columns-1 && this.matrix[i-1][j+1].dataset.valueSquare == '-1') bombCounter++;
+                    
+                    this.matrix[i][j].dataset.valueSquare = bombCounter
+                    bombCounter = 0
+                }
+                
+            }
+        }
+    }
+
     createMatrix(){
         this.matrix = new Array(this.lines)
 
@@ -112,6 +134,7 @@ class GameController{
         
         this.createBoard()
         this.generateBombs()
+        this.countBombs()
     }
 
 }
