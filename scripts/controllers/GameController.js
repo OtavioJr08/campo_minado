@@ -88,11 +88,35 @@ class GameController{
                 square.addEventListener('click', ()=>{
                     this.openSquare(square)
                 })
+                square.addEventListener('mousedown', event=>{
+                    if(event.which === 3)
+                        this.checkFlag(square)
+                })
                 row.insertAdjacentElement('beforeend', square)
                 this.matrix[i][j] = square
             }
             
             this.boardEl.insertAdjacentElement('beforeend', row)
+        }
+    }
+
+    checkFlag(square){
+        if(this.enableClick){
+            if(!square.classList.contains('boardSquareOpen') && !square.classList.contains('squareGameOver')){
+                
+                if(square.classList.contains('checkSquareFlag')){
+                    square.querySelector('img').remove()
+                    square.classList.remove('checkSquareFlag')
+                    square.classList.add('boardSquare')
+                }else{
+                    square.classList.remove('boardSquare')
+                    square.classList.add('checkSquareFlag')
+                    let img = document.createElement('img')
+                    img.src = 'images/flag.png'
+                    square.insertAdjacentElement('beforeend', img)
+                }
+            
+            }
         }
     }
 
@@ -110,9 +134,9 @@ class GameController{
     }
 
     openSquare(square){
-        if(this.enableClick){
+        if(this.enableClick && square.classList.contains('boardSquare')){
             let valueSquare = square.dataset.valueSquare
-            
+
             if(valueSquare == '-1'){
                 this.gameOver()
                 this.enableClick = false
@@ -120,6 +144,7 @@ class GameController{
                 //Abre até chegar encontrar um quadrado preenchido
             }else{
                 square.innerText = valueSquare
+                square.classList.remove('boardSquare')
                 square.classList.add('boardSquareOpen')
             }
         }
