@@ -3,6 +3,7 @@ class GameController{
     constructor(){
         this.boardEl = document.querySelector('#board')
         this.levels = document.querySelectorAll('ul > li > a')
+        this.enableClick
         this.lines = 20
         this.columns = 20
         this.bombs = 40
@@ -11,8 +12,15 @@ class GameController{
     }
     
     initialize(){
+        this.disableRightButton()
         this.setEventsMenu()
         this.createMatrix()
+    }
+
+    disableRightButton(){
+        document.addEventListener('contextmenu', event => {
+            event.preventDefault()}
+        );
     }
 
     setEventsMenu(){
@@ -77,11 +85,43 @@ class GameController{
                 let square = document.createElement('div')
                 square.classList.add('boardSquare')
                 square.dataset.valueSquare = 0
+                square.addEventListener('click', ()=>{
+                    this.openSquare(square)
+                })
                 row.insertAdjacentElement('beforeend', square)
                 this.matrix[i][j] = square
             }
             
             this.boardEl.insertAdjacentElement('beforeend', row)
+        }
+    }
+
+    gameOver(){
+        for(let i=0; i<this.lines; i++){
+            for(let j=0; j<this.columns; j++){
+                if(this.matrix[i][j].dataset.valueSquare == '-1'){
+                    this.matrix[i][j].classList.add('squareGameOver')
+                    let img = document.createElement('img')
+                    img.src = 'images/bomb.png'
+                    this.matrix[i][j].insertAdjacentElement('beforeend', img)
+                }
+            }
+        }
+    }
+
+    openSquare(square){
+        if(this.enableClick){
+            let valueSquare = square.dataset.valueSquare
+            
+            if(valueSquare == '-1'){
+                this.gameOver()
+                this.enableClick = false
+            }else if(valueSquare == '0'){
+                //Abre até chegar encontrar um quadrado preenchido
+            }else{
+                square.innerText = valueSquare
+                square.classList.add('boardSquareOpen')
+            }
         }
     }
 
@@ -127,6 +167,7 @@ class GameController{
     }
 
     createMatrix(){
+        this.enableClick = true
         this.matrix = new Array(this.lines)
 
         for(let i=0; i<this.lines; i++)

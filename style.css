@@ -2,6 +2,11 @@ body {
     background-color: #ffdf3e;
 }
 
+img{
+    width: 100%;
+    height: 100%;
+}
+
 #menu{
     background-color: #ffdf3e;
 }
@@ -34,4 +39,12 @@ body {
     text-align: center;
     font-weight: bold;
     font-size: 15pt;
+}
+
+.squareGameOver{
+    background-color: red;
+}
+
+.checkSquareFlag{
+    background-color: white;
 }
