@@ -43,8 +43,14 @@ img{
 
 .squareGameOver{
     background-color: red;
+    width: 33px;
+    height: 33px;
+    border: 1px solid black;
 }
 
 .checkSquareFlag{
     background-color: white;
+    width: 33px;
+    height: 33px;
+    border: 1px solid black;
 }
