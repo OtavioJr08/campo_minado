@@ -1,12 +1,16 @@
 class GameController{
-    
     constructor(){
         this.boardEl = document.querySelector('#board')
         this.levels = document.querySelectorAll('ul > li > a')
-        this.enableClick
+        this.isEnableClick
         this.lines = 20
         this.columns = 20
         this.bombs = 40
+        this.score = {
+            max: null, 
+            current: null,
+            displayedMessage: false
+        }
         this.matrix
         this.initialize()
     }
@@ -21,6 +25,16 @@ class GameController{
         document.addEventListener('contextmenu', event => {
             event.preventDefault()}
         );
+    }
+
+    checkWon(){
+        if(this.score.current == this.score.max){
+            this.isEnableClick = false
+            if(!this.score.displayedMessage){
+                this.score.displayedMessage = true
+                alert('Parabéns, você venceu a partida!')
+            }
+        }    
     }
 
     setEventsMenu(){
@@ -101,16 +115,14 @@ class GameController{
     }
 
     checkFlag(square){
-        if(this.enableClick){
+        if(this.isEnableClick){
             if(!square.classList.contains('boardSquareOpen') && !square.classList.contains('squareGameOver')){
                 
                 if(square.classList.contains('checkSquareFlag')){
                     square.querySelector('img').remove()
-                    square.classList.remove('checkSquareFlag')
-                    square.classList.add('boardSquare')
+                    square.className = 'boardSquare'
                 }else{
-                    square.classList.remove('boardSquare')
-                    square.classList.add('checkSquareFlag')
+                    square.className = 'checkSquareFlag'
                     let img = document.createElement('img')
                     img.src = 'images/flag.png'
                     square.insertAdjacentElement('beforeend', img)
@@ -120,15 +132,21 @@ class GameController{
         }
     }
 
-    gameOver(){
+    gameOver(l, c){
+        this.matrix[l][c].className = 'squareGameOverClick'
         for(let i=0; i<this.lines; i++){
             for(let j=0; j<this.columns; j++){
                 if(this.matrix[i][j].dataset.valueSquare == '-1'){
-                    if(this.matrix[i][j].classList.contains('checkSquareFlag')){
-                        this.matrix[i][j].querySelector('img').remove()
-                        this.matrix[i][j].classList.remove('checkSquareFlag')
-                    }    
-                    this.matrix[i][j].classList.add('squareGameOver')
+
+                    if(i == l && j == c){
+                        this.matrix[l][c].className = 'squareGameOverClick'
+                    }else{
+                        if(this.matrix[i][j].classList.contains('checkSquareFlag')){
+                            this.matrix[i][j].querySelector('img').remove()
+                            this.matrix[i][j].classList.remove('checkSquareFlag')
+                        }  
+                        this.matrix[i][j].className = 'squareGameOver'
+                    }
                     let img = document.createElement('img')
                     img.src = 'images/bomb.png'
                     this.matrix[i][j].insertAdjacentElement('beforeend', img)
@@ -148,14 +166,14 @@ class GameController{
                             case '-1':
                                 break;
                             case '0':
-                                square.classList.remove('boardSquare')
-                                square.classList.add('boardSquareOpen')
+                                this.score.current++
+                                square.className = 'boardSquareOpen'
                                 this.openSquareAround(i, j)
                                 break  
                             default:
+                                this.score.current++
                                 square.innerText = square.dataset.valueSquare
-                                square.classList.remove('boardSquare')
-                                square.classList.add('boardSquareOpen')
+                                square.className = 'boardSquareOpen'
                         }
                     }
 
@@ -165,20 +183,26 @@ class GameController{
     }
 
     openSquare(square, line, column){
-        if(this.enableClick && square.classList.contains('boardSquare')){
-            let valueSquare = square.dataset.valueSquare
-
-            if(valueSquare == '-1'){
-                this.gameOver()
-                this.enableClick = false
-            }else if(valueSquare == '0')
-                this.openSquareAround(line, column)
-            else{
-                square.innerText = valueSquare
-                square.classList.remove('boardSquare')
-                square.classList.add('boardSquareOpen')
+        if(this.isEnableClick){
+            
+            if(square.classList.contains('boardSquare')){
+                let valueSquare = square.dataset.valueSquare
+    
+                if(valueSquare == '-1'){
+                    this.gameOver(line, column)
+                    this.isEnableClick = false
+                }else if(valueSquare == '0')
+                    this.openSquareAround(line, column)
+                else{
+                    this.score.current++
+                    square.innerText = valueSquare
+                    square.className = 'boardSquareOpen'
+                }
             }
+        }else{
+            alert('Fim de Jogo')
         }
+        this.checkWon()
     }
 
     generateBombs(){
@@ -189,7 +213,7 @@ class GameController{
                 c = this.getRandomInt(0, this.columns)   
             }while(this.matrix[l][c].dataset.valueSquare != '0')
             this.matrix[l][c].dataset.valueSquare = '-1'
-            this.matrix[l][c].style.backgroundColor  = 'red' //Temporário (Coloca posição com bomba em vermelho)
+            // this.matrix[l][c].style.backgroundColor  = 'red' //Temporário (Coloca posição com bomba em vermelho)
         }
     }
 
@@ -223,7 +247,9 @@ class GameController{
     }
 
     createMatrix(){
-        this.enableClick = true
+        this.isEnableClick = true
+        this.score.max = this.lines*this.columns - this.bombs
+        this.score.current = 0
         this.matrix = new Array(this.lines)
 
         for(let i=0; i<this.lines; i++)
@@ -233,5 +259,4 @@ class GameController{
         this.generateBombs()
         this.countBombs()
     }
-
 }
