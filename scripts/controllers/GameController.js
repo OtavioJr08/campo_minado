@@ -86,7 +86,7 @@ class GameController{
                 square.classList.add('boardSquare')
                 square.dataset.valueSquare = 0
                 square.addEventListener('click', ()=>{
-                    this.openSquare(square)
+                    this.openSquare(square, i, j)
                 })
                 square.addEventListener('mousedown', event=>{
                     if(event.which === 3)
@@ -137,16 +137,43 @@ class GameController{
         }
     }
 
-    openSquare(square){
+    openSquareAround(l, c){
+        for(let i=l-1; i<=l+1; i++){
+            for(let j=c-1; j<=c+1; j++){
+                if (i >= 0 && i < this.lines && j >= 0 && j < this.columns) {
+                    let square = this.matrix[i][j]                    
+                 
+                    if(square.classList.contains('boardSquare')){
+                        switch(square.dataset.valueSquare){
+                            case '-1':
+                                break;
+                            case '0':
+                                square.classList.remove('boardSquare')
+                                square.classList.add('boardSquareOpen')
+                                this.openSquareAround(i, j)
+                                break  
+                            default:
+                                square.innerText = square.dataset.valueSquare
+                                square.classList.remove('boardSquare')
+                                square.classList.add('boardSquareOpen')
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+
+    openSquare(square, line, column){
         if(this.enableClick && square.classList.contains('boardSquare')){
             let valueSquare = square.dataset.valueSquare
 
             if(valueSquare == '-1'){
                 this.gameOver()
                 this.enableClick = false
-            }else if(valueSquare == '0'){
-                //Abre até chegar encontrar um quadrado preenchido
-            }else{
+            }else if(valueSquare == '0')
+                this.openSquareAround(line, column)
+            else{
                 square.innerText = valueSquare
                 square.classList.remove('boardSquare')
                 square.classList.add('boardSquareOpen')
