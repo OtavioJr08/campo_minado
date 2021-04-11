@@ -2,6 +2,7 @@ class GameController{
     constructor(){
         this.boardEl = document.querySelector('#board')
         this.levels = document.querySelectorAll('ul > li > a')
+        this.modalEl = new bootstrap.Modal(document.querySelector('#messageModal'))
         this.isEnableClick
         this.lines = 20
         this.columns = 20
@@ -18,6 +19,10 @@ class GameController{
     initialize(){
         this.disableRightButton()
         this.setEventsMenu()
+        this.newGame()
+    }
+    
+    newGame(){
         this.createMatrix()
     }
 
@@ -32,10 +37,36 @@ class GameController{
             this.isEnableClick = false
             if(!this.score.displayedMessage){
                 this.score.displayedMessage = true
-                alert('Parabéns, você venceu a partida!')
+                let settingsModal = {
+                    title: 'Você Venceu!',
+                    textBody: 'Parabéns, você venceu a partida!'
+                }
+                this.displayMessage(settingsModal, false)
             }
         }    
     }
+
+    displayMessage(settingsModal, isError){
+        let modalEl = document.querySelector('#messageModal')
+    
+        modalEl.querySelector('.modal-title').innerText = settingsModal.title
+        modalEl.querySelector('.modal-body').innerText = settingsModal.textBody
+        modalEl.querySelector('.close-modal').innerHTML = 'Fechar'    
+        let btnNewGame = modalEl.querySelector('.newGame-modal')
+        
+        if(isError)
+            btnNewGame.style.display = 'none'
+        else{
+            btnNewGame.innerHTML = 'Novo Jogo'               
+            btnNewGame.addEventListener('click', ()=>{
+                this.modalEl.hide()
+                this.newGame()
+            })
+        }
+        
+        this.modalEl.show()
+    }
+
 
     setEventsMenu(){
         // Fixed board size
@@ -54,15 +85,23 @@ class GameController{
             this.lines = [...customForm.elements][0].value
             this.columns = [...customForm.elements][1].value
             this.bombs = [...customForm.elements][2].value
+            let settingsModal = {
+                title: 'Ops, algo deu errado!',
+                textBody: null
+            }
             
             if(this.lines != '' && this.columns != '' && this.bombs != ''){
                 let dimensions = this.lines * this.columns
                 if(this.bombs <= dimensions)
                     this.createMatrix()
-                else
-                    alert('O número de bombas deve ser menor ou igual a ' + dimensions)
-            }else
-                alert('Há campos não preenchidos!')
+                else{
+                    settingsModal.textBody = 'O número de bombas deve ser menor ou igual a ' + dimensions
+                    this.displayMessage(settingsModal, true)
+                }
+            }else{
+                settingsModal.textBody = 'Preencha todos os campos'
+                this.displayMessage(settingsModal, true) 
+            }    
         })
     }
 
@@ -153,6 +192,11 @@ class GameController{
                 }
             }
         }
+        let settingsModal = {
+            title: 'Você Perdeu!',
+            textBody: 'Que pena, você perdeu a partida!',
+        }
+        this.displayMessage(settingsModal, false)
     }
 
     openSquareAround(l, c){
@@ -200,8 +244,20 @@ class GameController{
                 }
             }
         }else{
-            alert('Fim de Jogo')
+            let settingsModal = {
+                title: null,
+                textBody: null
+            }
+            if(this.score.displayedMessage){
+                settingsModal.title = 'Você Venceu!'
+                settingsModal.textBody = 'Parabéns, você venceu a partida!'
+            }else{
+                settingsModal.title = 'Você Perdeu!'
+                settingsModal.textBody = 'Que pena, você perdeu a partida!'
+            }
+            this.displayMessage(settingsModal, false)
         }
+        
         this.checkWon()
     }
 
@@ -213,7 +269,7 @@ class GameController{
                 c = this.getRandomInt(0, this.columns)   
             }while(this.matrix[l][c].dataset.valueSquare != '0')
             this.matrix[l][c].dataset.valueSquare = '-1'
-            // this.matrix[l][c].style.backgroundColor  = 'red' //Temporário (Coloca posição com bomba em vermelho)
+            this.matrix[l][c].style.backgroundColor  = 'red' //Temporário (Coloca posição com bomba em vermelho)
         }
     }
 
@@ -229,14 +285,14 @@ class GameController{
             for(let j=0; j<this.columns; j++){
 
                 if(this.matrix[i][j].dataset.valueSquare == '0'){
-                    if(j>0 && this.matrix[i][j-1].dataset.valueSquare == '-1') bombCounter++;
-                    if(j<this.columns-1 && this.matrix[i][j+1].dataset.valueSquare == '-1') bombCounter++;
-                    if(i<this.lines-1 && this.matrix[i+1][j].dataset.valueSquare == '-1') bombCounter++;
-                    if(i>0 && this.matrix[i-1][j].dataset.valueSquare == '-1') bombCounter++;
-                    if(i<this.lines-1 && j>0 && this.matrix[i+1][j-1].dataset.valueSquare == '-1') bombCounter++;
-                    if(i<this.lines-1 && j<this.columns-1 && this.matrix[i+1][j+1].dataset.valueSquare == '-1') bombCounter++;
-                    if(i>0 && j>0 && this.matrix[i-1][j-1].dataset.valueSquare == '-1') bombCounter++;
-                    if(i>0 && j<this.columns-1 && this.matrix[i-1][j+1].dataset.valueSquare == '-1') bombCounter++;
+                    if(j>0 && this.matrix[i][j-1].dataset.valueSquare == '-1') bombCounter++
+                    if(j<this.columns-1 && this.matrix[i][j+1].dataset.valueSquare == '-1') bombCounter++
+                    if(i<this.lines-1 && this.matrix[i+1][j].dataset.valueSquare == '-1') bombCounter++
+                    if(i>0 && this.matrix[i-1][j].dataset.valueSquare == '-1') bombCounter++
+                    if(i<this.lines-1 && j>0 && this.matrix[i+1][j-1].dataset.valueSquare == '-1') bombCounter++
+                    if(i<this.lines-1 && j<this.columns-1 && this.matrix[i+1][j+1].dataset.valueSquare == '-1') bombCounter++
+                    if(i>0 && j>0 && this.matrix[i-1][j-1].dataset.valueSquare == '-1') bombCounter++
+                    if(i>0 && j<this.columns-1 && this.matrix[i-1][j+1].dataset.valueSquare == '-1') bombCounter++
                     
                     this.matrix[i][j].dataset.valueSquare = bombCounter
                     bombCounter = 0
