@@ -3,16 +3,20 @@ class GameController{
         this.boardEl = document.querySelector('#board')
         this.levels = document.querySelectorAll('ul > li > a')
         this.modalEl = new bootstrap.Modal(document.querySelector('#messageModal'))
-        this.isEnableClick
+        this.matrix
         this.lines = 20
         this.columns = 20
         this.bombs = 40
+        this.isEnableClick
         this.score = {
             max: null, 
             current: null,
             displayedMessage: false
         }
-        this.matrix
+        this.settingsModal = {
+            title: null,
+            textBody: null
+        }
         this.initialize()
     }
     
@@ -32,17 +36,16 @@ class GameController{
         );
     }
 
+    setSettingsModal(title, textBody){
+        this.settingsModal.title = title
+        this.settingsModal.textBody = textBody
+    }
+
     checkWon(){
         if(this.score.current == this.score.max){
             this.isEnableClick = false
-            if(!this.score.displayedMessage){
-                this.score.displayedMessage = true
-                let settingsModal = {
-                    title: 'Você Venceu!',
-                    textBody: 'Parabéns, você venceu a partida!'
-                }
-                this.displayMessage(settingsModal, false)
-            }
+            this.setSettingsModal('Você Venceu!', 'Parabéns, você venceu a partida!')
+            this.displayMessage(this.settingsModal, false)
         }    
     }
 
@@ -85,22 +88,22 @@ class GameController{
             this.lines = [...customForm.elements][0].value
             this.columns = [...customForm.elements][1].value
             this.bombs = [...customForm.elements][2].value
-            let settingsModal = {
-                title: 'Ops, algo deu errado!',
-                textBody: null
-            }
+            let titleModal = 'Ops, algo deu errado!'
+            let textBody
             
             if(this.lines != '' && this.columns != '' && this.bombs != ''){
                 let dimensions = this.lines * this.columns
                 if(this.bombs <= dimensions)
                     this.createMatrix()
                 else{
-                    settingsModal.textBody = 'O número de bombas deve ser menor ou igual a ' + dimensions
-                    this.displayMessage(settingsModal, true)
+                    textBody = `O número de bombas deve ser menor ou igual a ${ dimensions}`
+                    this.setSettingsModal(titleModal, textBody)
+                    this.displayMessage(this.settingsModal, true)
                 }
             }else{
-                settingsModal.textBody = 'Preencha todos os campos'
-                this.displayMessage(settingsModal, true) 
+                textBody = 'Preencha todos os campos!'
+                this.setSettingsModal(titleModal, textBody)
+                this.displayMessage(this.settingsModal, true) 
             }    
         })
     }
@@ -192,11 +195,6 @@ class GameController{
                 }
             }
         }
-        let settingsModal = {
-            title: 'Você Perdeu!',
-            textBody: 'Que pena, você perdeu a partida!',
-        }
-        this.displayMessage(settingsModal, false)
     }
 
     openSquareAround(l, c){
@@ -235,6 +233,8 @@ class GameController{
                 if(valueSquare == '-1'){
                     this.gameOver(line, column)
                     this.isEnableClick = false
+                    this.setSettingsModal('Você Perdeu!', 'Que pena, você perdeu a partida!')
+                    this.displayMessage(this.settingsModal, false)
                 }else if(valueSquare == '0')
                     this.openSquareAround(line, column)
                 else{
@@ -243,22 +243,23 @@ class GameController{
                     square.className = 'boardSquareOpen'
                 }
             }
+
+            this.checkWon()
         }else{
-            let settingsModal = {
-                title: null,
-                textBody: null
-            }
+            let titleModal
+            let textBody
+            
             if(this.score.displayedMessage){
-                settingsModal.title = 'Você Venceu!'
-                settingsModal.textBody = 'Parabéns, você venceu a partida!'
+                titleModal = 'Você Venceu!'
+                textBody = 'Parabéns, você venceu a partida!'
             }else{
-                settingsModal.title = 'Você Perdeu!'
-                settingsModal.textBody = 'Que pena, você perdeu a partida!'
+                titleModal = 'Você Perdeu!'
+                textBody = 'Que pena, você perdeu a partida!'
             }
-            this.displayMessage(settingsModal, false)
+
+            this.setSettingsModal(titleModal, textBody)
+            this.displayMessage(this.settingsModal, false)
         }
-        
-        this.checkWon()
     }
 
     generateBombs(){
@@ -269,7 +270,7 @@ class GameController{
                 c = this.getRandomInt(0, this.columns)   
             }while(this.matrix[l][c].dataset.valueSquare != '0')
             this.matrix[l][c].dataset.valueSquare = '-1'
-            this.matrix[l][c].style.backgroundColor  = 'red' //Temporário (Coloca posição com bomba em vermelho)
+            // this.matrix[l][c].style.backgroundColor  = 'red' //Temporário (Coloca posição com bomba em vermelho)
         }
     }
 
@@ -306,6 +307,7 @@ class GameController{
         this.isEnableClick = true
         this.score.max = this.lines*this.columns - this.bombs
         this.score.current = 0
+        this.score.displayedMessage = false
         this.matrix = new Array(this.lines)
 
         for(let i=0; i<this.lines; i++)
