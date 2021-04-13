@@ -174,6 +174,11 @@ class GameController{
         }
     }
 
+    removeFlag(square){
+        square.querySelector('img').remove()
+        square.classList.remove('checkSquareFlag')
+    }
+
     gameOver(l, c){
         this.matrix[l][c].className = 'squareGameOverClick'
         for(let i=0; i<this.lines; i++){
@@ -183,10 +188,8 @@ class GameController{
                     if(i == l && j == c){
                         this.matrix[l][c].className = 'squareGameOverClick'
                     }else{
-                        if(this.matrix[i][j].classList.contains('checkSquareFlag')){
-                            this.matrix[i][j].querySelector('img').remove()
-                            this.matrix[i][j].classList.remove('checkSquareFlag')
-                        }  
+                        if(this.matrix[i][j].classList.contains('checkSquareFlag'))
+                            this.removeFlag(this.matrix[i][j])
                         this.matrix[i][j].className = 'squareGameOver'
                     }
                     let img = document.createElement('img')
@@ -202,12 +205,13 @@ class GameController{
             for(let j=c-1; j<=c+1; j++){
                 if (i >= 0 && i < this.lines && j >= 0 && j < this.columns) {
                     let square = this.matrix[i][j]                    
-                 
-                    if(square.classList.contains('boardSquare')){
+                    if(square.classList.contains('boardSquare') || square.classList.contains('checkSquareFlag')){
                         switch(square.dataset.valueSquare){
                             case '-1':
                                 break;
                             case '0':
+                                if(square.classList.contains('checkSquareFlag'))
+                                    this.removeFlag(square)    
                                 this.score.current++
                                 square.className = 'boardSquareOpen'
                                 this.openSquareAround(i, j)
