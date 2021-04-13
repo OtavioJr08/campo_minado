@@ -14,6 +14,11 @@ img{
     background-color: #ffdf3e;
 }
 
+#board{
+    text-align: center;
+    margin-bottom: 5%;
+}
+
 .rowBoard {
     display: -webkit-box;
     display: -ms-flexbox;

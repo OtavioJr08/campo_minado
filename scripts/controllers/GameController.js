@@ -7,6 +7,7 @@ class GameController{
         this.lines = 20
         this.columns = 20
         this.bombs = 40
+        this.gameLevel = 'Fácil'
         this.isEnableClick
         this.score = {
             max: null, 
@@ -27,6 +28,10 @@ class GameController{
     }
     
     newGame(){
+        this.isEnableClick = true
+        this.score.max = this.lines*this.columns - this.bombs
+        this.score.current = 0
+        this.score.displayedMessage = false
         this.createMatrix()
     }
 
@@ -44,6 +49,7 @@ class GameController{
     checkWon(){
         if(this.score.current == this.score.max){
             this.isEnableClick = false
+            this.score.displayedMessage = true
             this.setSettingsModal('Você Venceu!', 'Parabéns, você venceu a partida!')
             this.displayMessage(this.settingsModal, false)
         }    
@@ -88,13 +94,14 @@ class GameController{
             this.lines = [...customForm.elements][0].value
             this.columns = [...customForm.elements][1].value
             this.bombs = [...customForm.elements][2].value
+            this.gameLevel = 'Personalizado'
             let titleModal = 'Ops, algo deu errado!'
             let textBody
             
             if(this.lines != '' && this.columns != '' && this.bombs != ''){
                 let dimensions = this.lines * this.columns
                 if(this.bombs <= dimensions)
-                    this.createMatrix()
+                    this.newGame()
                 else{
                     textBody = `O número de bombas deve ser menor ou igual a ${ dimensions}`
                     this.setSettingsModal(titleModal, textBody)
@@ -114,23 +121,30 @@ class GameController{
                 this.lines = 25
                 this.columns = 25
                 this.bombs = 80
+                this.gameLevel = 'Médio'
                 break;
             case 'hard':
                 this.lines = 28
                 this.columns = 28
                 this.bombs = 120
+                this.gameLevel = 'Difícil'
                 break;
             case 'easy':
             default:
                 this.lines = 20
                 this.columns = 20
                 this.bombs = 40
+                this.gameLevel = 'Fácil'
         }
-        this.createMatrix()
+        this.newGame()
     }
 
     createBoard(){
         this.boardEl.innerHTML = ' '
+        // Create 'h5' element 
+        let h5 = document.createElement('h5')
+        h5.innerText = this.gameLevel
+        this.boardEl.insertAdjacentElement('afterbegin', h5)
         for(let i=0; i<this.lines; i++){
             // Create rows
             let row = document.createElement('DIV')
@@ -151,7 +165,6 @@ class GameController{
                 row.insertAdjacentElement('beforeend', square)
                 this.matrix[i][j] = square
             }
-            
             this.boardEl.insertAdjacentElement('beforeend', row)
         }
     }
@@ -192,6 +205,7 @@ class GameController{
                             this.removeFlag(this.matrix[i][j])
                         this.matrix[i][j].className = 'squareGameOver'
                     }
+
                     let img = document.createElement('img')
                     img.src = 'images/bomb.png'
                     this.matrix[i][j].insertAdjacentElement('beforeend', img)
@@ -222,7 +236,6 @@ class GameController{
                                 square.className = 'boardSquareOpen'
                         }
                     }
-
                 }
             }
         }
@@ -274,7 +287,6 @@ class GameController{
                 c = this.getRandomInt(0, this.columns)   
             }while(this.matrix[l][c].dataset.valueSquare != '0')
             this.matrix[l][c].dataset.valueSquare = '-1'
-            // this.matrix[l][c].style.backgroundColor  = 'red' //Temporário (Coloca posição com bomba em vermelho)
         }
     }
 
@@ -284,34 +296,33 @@ class GameController{
         return Math.floor(Math.random() * (max - min)) + min
     }
 
-    countBombs(){
+    checkAround(l, c){
         let bombCounter = 0
+        for(let i=l-1; i<=l+1; i++){
+            for(let j=c-1; j<=c+1; j++){
+                if(i >= 0 && i < this.lines && j >=0 && j < this.columns){
+                    let valueSquare = this.matrix[i][j].dataset.valueSquare
+                    if(valueSquare == '-1')
+                        bombCounter++
+                }
+            }
+        }
+        return bombCounter
+    }
+
+    countBombs(){
+        let bombCounter
         for(let i=0; i<this.lines; i++){
             for(let j=0; j<this.columns; j++){
-
                 if(this.matrix[i][j].dataset.valueSquare == '0'){
-                    if(j>0 && this.matrix[i][j-1].dataset.valueSquare == '-1') bombCounter++
-                    if(j<this.columns-1 && this.matrix[i][j+1].dataset.valueSquare == '-1') bombCounter++
-                    if(i<this.lines-1 && this.matrix[i+1][j].dataset.valueSquare == '-1') bombCounter++
-                    if(i>0 && this.matrix[i-1][j].dataset.valueSquare == '-1') bombCounter++
-                    if(i<this.lines-1 && j>0 && this.matrix[i+1][j-1].dataset.valueSquare == '-1') bombCounter++
-                    if(i<this.lines-1 && j<this.columns-1 && this.matrix[i+1][j+1].dataset.valueSquare == '-1') bombCounter++
-                    if(i>0 && j>0 && this.matrix[i-1][j-1].dataset.valueSquare == '-1') bombCounter++
-                    if(i>0 && j<this.columns-1 && this.matrix[i-1][j+1].dataset.valueSquare == '-1') bombCounter++
-                    
+                    bombCounter =  this.checkAround(i, j)
                     this.matrix[i][j].dataset.valueSquare = bombCounter
-                    bombCounter = 0
                 }
-                
             }
         }
     }
 
     createMatrix(){
-        this.isEnableClick = true
-        this.score.max = this.lines*this.columns - this.bombs
-        this.score.current = 0
-        this.score.displayedMessage = false
         this.matrix = new Array(this.lines)
 
         for(let i=0; i<this.lines; i++)
