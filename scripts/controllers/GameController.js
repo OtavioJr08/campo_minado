@@ -2,7 +2,8 @@ class GameController{
     constructor(){
         this.boardEl = document.querySelector('#board')
         this.levels = document.querySelectorAll('ul > li > a')
-        this.modalEl = new bootstrap.Modal(document.querySelector('#messageModal'))
+        this.modalMessageEl = new bootstrap.Modal(document.querySelector('#messageModal'))
+        this.modalCustomEl = new bootstrap.Modal(document.querySelector('#customLevelModal'))
         this.matrix
         this.lines = 20
         this.columns = 20
@@ -56,24 +57,24 @@ class GameController{
     }
 
     displayMessage(settingsModal, isError){
-        let modalEl = document.querySelector('#messageModal')
+        let modalMessageEl = document.querySelector('#messageModal')
     
-        modalEl.querySelector('.modal-title').innerText = settingsModal.title
-        modalEl.querySelector('.modal-body').innerText = settingsModal.textBody
-        modalEl.querySelector('.close-modal').innerHTML = 'Fechar'    
-        let btnNewGame = modalEl.querySelector('.newGame-modal')
+        modalMessageEl.querySelector('.modal-title').innerText = settingsModal.title
+        modalMessageEl.querySelector('.modal-body').innerText = settingsModal.textBody
+        modalMessageEl.querySelector('.close-modal').innerHTML = 'Fechar'    
+        let btnNewGame = modalMessageEl.querySelector('.newGame-modal')
         
         if(isError)
             btnNewGame.style.display = 'none'
         else{
             btnNewGame.innerHTML = 'Novo Jogo'               
             btnNewGame.addEventListener('click', ()=>{
-                this.modalEl.hide()
+                this.modalMessageEl.hide()
                 this.newGame()
             })
         }
         
-        this.modalEl.show()
+        this.modalMessageEl.show()
     }
 
 
@@ -91,13 +92,13 @@ class GameController{
         customForm.addEventListener('submit', event=>{
             event.preventDefault()
             
+            this.modalCustomEl.hide()
             this.lines = [...customForm.elements][0].value
             this.columns = [...customForm.elements][1].value
             this.bombs = [...customForm.elements][2].value
             this.gameLevel = 'Personalizado'
             let titleModal = 'Ops, algo deu errado!'
             let textBody
-            
             if(this.lines != '' && this.columns != '' && this.bombs != ''){
                 let dimensions = this.lines * this.columns
                 if(this.bombs <= dimensions)
@@ -129,7 +130,8 @@ class GameController{
                 this.bombs = 120
                 this.gameLevel = 'Difícil'
                 break;
-            case 'easy':
+            case 'custom':
+                break
             default:
                 this.lines = 20
                 this.columns = 20
@@ -141,10 +143,8 @@ class GameController{
 
     createBoard(){
         this.boardEl.innerHTML = ' '
-        // Create 'h5' element 
-        let h5 = document.createElement('h5')
-        h5.innerText = this.gameLevel
-        this.boardEl.insertAdjacentElement('afterbegin', h5)
+        let p = document.querySelector('#gameDetails p')
+        p.innerHTML = `<b>Nível:</b> ${this.gameLevel}`
         for(let i=0; i<this.lines; i++){
             // Create rows
             let row = document.createElement('DIV')
