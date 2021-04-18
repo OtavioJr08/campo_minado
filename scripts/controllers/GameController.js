@@ -4,6 +4,7 @@ class GameController{
         this.levels = document.querySelectorAll('ul > li > a')
         this.modalMessageEl = new bootstrap.Modal(document.querySelector('#messageModal'))
         this.modalCustomEl = new bootstrap.Modal(document.querySelector('#customLevelModal'))
+        this.objTimer = new Timer()
         this.matrix
         this.lines = 20
         this.columns = 20
@@ -33,6 +34,7 @@ class GameController{
         this.score.max = this.lines*this.columns - this.bombs
         this.score.current = 0
         this.score.displayedMessage = false
+        this.objTimer.resetTimer()
         this.createMatrix()
     }
 
@@ -51,7 +53,8 @@ class GameController{
         if(this.score.current == this.score.max){
             this.isEnableClick = false
             this.score.displayedMessage = true
-            this.setSettingsModal('Você Venceu!', 'Parabéns, você venceu a partida!')
+            this.objTimer.stopTimer()
+            this.setSettingsModal('Você Venceu!', `Parabéns, você venceu a partida! Seu tempo foi ${this.objTimer.getTime()}`)
             this.displayMessage(this.settingsModal, false)
         }    
     }
@@ -77,6 +80,10 @@ class GameController{
         this.modalMessageEl.show()
     }
 
+    startTimer(){
+        
+        this.objTimer.startTimer()
+    }
 
     setEventsMenu(){
         // Fixed board size
@@ -156,6 +163,7 @@ class GameController{
                 square.classList.add('boardSquare')
                 square.dataset.valueSquare = 0
                 square.addEventListener('click', ()=>{
+                    this.startTimer()
                     this.openSquare(square, i, j)
                 })
                 square.addEventListener('mousedown', event=>{
@@ -193,6 +201,7 @@ class GameController{
     }
 
     gameOver(l, c){
+        this.objTimer.stopTimer()
         this.matrix[l][c].className = 'squareGameOverClick'
         for(let i=0; i<this.lines; i++){
             for(let j=0; j<this.columns; j++){
@@ -250,7 +259,7 @@ class GameController{
                 if(valueSquare == '-1'){
                     this.gameOver(line, column)
                     this.isEnableClick = false
-                    this.setSettingsModal('Você Perdeu!', 'Que pena, você perdeu a partida!')
+                    this.setSettingsModal('Você Perdeu!', `Que pena, você perdeu a partida! Seu tempo foi ${this.objTimer.getTime()}`)
                     this.displayMessage(this.settingsModal, false)
                 }else if(valueSquare == '0')
                     this.openSquareAround(line, column)
@@ -268,10 +277,10 @@ class GameController{
             
             if(this.score.displayedMessage){
                 titleModal = 'Você Venceu!'
-                textBody = 'Parabéns, você venceu a partida!'
+                textBody = `Parabéns, você venceu a partida! Seu tempo foi ${this.objTimer.getTime()}`
             }else{
                 titleModal = 'Você Perdeu!'
-                textBody = 'Que pena, você perdeu a partida!'
+                textBody = `Que pena, você perdeu a partida! Seu tempo foi ${this.objTimer.getTime()}`
             }
 
             this.setSettingsModal(titleModal, textBody)
