@@ -25,6 +25,7 @@ class Timer{
         this.min = 0
         this.s = 0
         this.isStartedTimer = false
+        this.stopTimer()
         this.pEl.innerHTML = '<b>Cronômetro:</b> 00:00:00'
     }
 

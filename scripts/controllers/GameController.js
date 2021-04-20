@@ -24,6 +24,16 @@ class GameController{
     }
     
     initialize(){
+        if(JSON.stringify(localStorage.getItem('minefield')) === 'null'){//Create key
+            let times = {
+                easy: '00:00:00',
+                medium: '00:00:00',
+                hard: '00:00:00',
+                custom: '00:00:00'
+            }
+            localStorage.setItem('minefield', JSON.stringify(times))
+        }
+
         this.disableRightButton()
         this.setEventsMenu()
         this.newGame()
@@ -54,6 +64,7 @@ class GameController{
             this.isEnableClick = false
             this.score.displayedMessage = true
             this.objTimer.stopTimer()
+            this.saveTimers()
             this.setSettingsModal('Você Venceu!', `Parabéns, você venceu a partida! Seu tempo foi ${this.objTimer.getTime()}`)
             this.displayMessage(this.settingsModal, false)
         }    
@@ -81,8 +92,27 @@ class GameController{
     }
 
     startTimer(){
-        
         this.objTimer.startTimer()
+    }
+
+    saveTimers(){
+        let currentTime = this.objTimer.getTime()
+        let times = JSON.parse(localStorage.getItem('minefield'))
+        switch(this.gameLevel){
+            case 'Fácil':
+                times.easy = currentTime
+                break
+            case 'Médio':
+                times.medium = currentTime
+                break
+            case 'Difícil':
+                times.hard = currentTime
+                break
+            case 'Personalizado':
+            default:
+                times.custom = currentTime
+        }
+        localStorage.setItem('minefield', JSON.stringify(times))
     }
 
     setEventsMenu(){
@@ -296,6 +326,7 @@ class GameController{
                 c = this.getRandomInt(0, this.columns)   
             }while(this.matrix[l][c].dataset.valueSquare != '0')
             this.matrix[l][c].dataset.valueSquare = '-1'
+            this.matrix[l][c].style.backgroundColor='red'
         }
     }
 
