@@ -24,12 +24,12 @@ class GameController{
     }
     
     initialize(){
-        if(JSON.stringify(localStorage.getItem('minefield')) === 'null'){//Create key
+        if(JSON.stringify(localStorage.getItem('minefield')) === 'null'){//Create key in localStorage
             let times = {
-                easy: '00:00:00',
-                medium: '00:00:00',
-                hard: '00:00:00',
-                custom: '00:00:00'
+                easy: '-:-:-',
+                medium: '-:-:-',
+                hard: '-:-:-',
+                custom: '-:-:-',
             }
             localStorage.setItem('minefield', JSON.stringify(times))
         }
@@ -95,22 +95,33 @@ class GameController{
         this.objTimer.startTimer()
     }
 
+    //Return 'true' when the current time is less  
+    isCompareTime(currentTime, localStorageTime){
+        if(localStorageTime === '-:-:-' || currentTime < localStorageTime)
+            return true 
+        return false
+    }
+
     saveTimers(){
         let currentTime = this.objTimer.getTime()
         let times = JSON.parse(localStorage.getItem('minefield'))
         switch(this.gameLevel){
             case 'Fácil':
-                times.easy = currentTime
+                if(this.isCompareTime(currentTime, times.easy))
+                    times.easy = currentTime
                 break
             case 'Médio':
-                times.medium = currentTime
+                if(this.isCompareTime(currentTime, times.medium))
+                    times.medium = currentTime
                 break
             case 'Difícil':
-                times.hard = currentTime
+                if(this.isCompareTime(currentTime, times.hard))
+                    times.hard = currentTime
                 break
             case 'Personalizado':
             default:
-                times.custom = currentTime
+                if(this.isCompareTime(currentTime, times.custom))
+                    times.custom = currentTime
         }
         localStorage.setItem('minefield', JSON.stringify(times))
     }
@@ -178,10 +189,26 @@ class GameController{
         this.newGame()
     }
 
+    getBestTime(){
+        let times = JSON.parse(localStorage.getItem('minefield'))
+        switch(this.gameLevel){
+            case 'Fácil':
+                return times.easy
+            case 'Médio':
+                return times.medium
+            case 'Difícil':
+                return times.hard
+            case 'Personalizado':
+            default:
+                return times.custom
+        }
+    }
+
     createBoard(){
         this.boardEl.innerHTML = ' '
-        let p = document.querySelector('#gameDetails p')
-        p.innerHTML = `<b>Nível:</b> ${this.gameLevel}`
+        let p = document.querySelectorAll('#gameDetails p')
+        p[0].innerHTML = `<b>Nível:</b> ${this.gameLevel}`
+        p[1].innerHTML = `<b>Melhor tempo:</b> ${(this.getBestTime()=='-:-:-')?'00:00:00':this.getBestTime()}`
         for(let i=0; i<this.lines; i++){
             // Create rows
             let row = document.createElement('DIV')
