@@ -208,7 +208,7 @@ class GameController{
         this.boardEl.innerHTML = ' '
         let p = document.querySelectorAll('#gameDetails p')
         p[0].innerHTML = `<b>Nível:</b> ${this.gameLevel}`
-        p[1].innerHTML = `<b>Melhor tempo:</b> ${(this.getBestTime()=='-:-:-')?'00:00:00':this.getBestTime()}`
+        p[1].innerHTML = `<b>Melhor tempo:</b> ${(this.getBestTime()=='-:-:-')?' __:__:__':this.getBestTime()}`
         for(let i=0; i<this.lines; i++){
             // Create rows
             let row = document.createElement('DIV')
@@ -353,7 +353,6 @@ class GameController{
                 c = this.getRandomInt(0, this.columns)   
             }while(this.matrix[l][c].dataset.valueSquare != '0')
             this.matrix[l][c].dataset.valueSquare = '-1'
-            this.matrix[l][c].style.backgroundColor='red'
         }
     }
 

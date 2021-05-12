@@ -1,6 +1,6 @@
 # Campo Minado
 
-Campo minado é um popular jogo de computador para um jogador e tem como objetivo revelar um campo de minas sem que alguma seja detonada.
+Campo minado desenvolvido em JavaScript com objetivo de estudos na linguagem. 
 
 ![Tela do jogo](images/screen/animation.gif)
 
